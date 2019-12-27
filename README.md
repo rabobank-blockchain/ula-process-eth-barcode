@@ -64,7 +64,6 @@ This plugin does **not** handle the ChallengeRequest. Instead, this plugin will 
 ```typescript
 const msg = {
   type: 'process-challengerequest',
-  endpoint: '{endpoint from QR code}',
   msg: challengeRequestJson
 }
 ```
