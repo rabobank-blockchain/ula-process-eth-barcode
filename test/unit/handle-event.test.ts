@@ -29,7 +29,7 @@ before(() => {
 
 describe('process barcode handle event process', function () {
   const httpService = new BrowserHttpService()
-  const httpServiceResponse = { toAttest: [], toVerify: [] }
+  const httpServiceResponse = { toAttest: [], toVerify: [], postEndpoint: 'http://domain.org/ssi/verifiable-presentation' }
   const ulaMessageType = 'did:eth:address/qr'
   const ulaMessageUrl = 'https://example.com'
   const ulaMessage = new Message({ type: ulaMessageType, url: ulaMessageUrl })
@@ -63,7 +63,6 @@ describe('process barcode handle event process', function () {
     const eventHandlerStub = sinon.stub(eventHandler, 'processMsg')
     const expectedUlaMessage = {
       type: 'process-challengerequest',
-      endpoint: ulaMessageUrl,
       msg: httpServiceResponse
     }
     sut.initialize(eventHandler)
