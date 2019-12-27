@@ -63,7 +63,6 @@ export class ProcessEthBarcode implements Plugin {
 
     const ulaMessage = {
       type: 'process-challengerequest',
-      endpoint: message.properties.url,
       msg: challengeRequestJson
     }
 
