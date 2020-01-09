@@ -1,6 +1,6 @@
 "use strict";
 /*
- * Copyright 2019 Coöperatieve Rabobank U.A.
+ * Copyright 2020 Coöperatieve Rabobank U.A.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,7 +65,6 @@ class ProcessEthBarcode {
             const challengeRequestJson = yield this._httpService.getRequest(message.properties.url);
             const ulaMessage = {
                 type: 'process-challengerequest',
-                endpoint: message.properties.url,
                 msg: challengeRequestJson
             };
             // Send the Challenge Request to the next plugin
