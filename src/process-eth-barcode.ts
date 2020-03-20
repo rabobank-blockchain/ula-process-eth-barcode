@@ -16,6 +16,7 @@
 
 import { HttpService, EventHandler, Message, Plugin } from 'universal-ledger-agent'
 import { MessageType } from './model/message-type'
+import {MessageStatus} from "./model/ula-msg-status";
 
 export class ProcessEthBarcode implements Plugin {
   private _eventHandler?: EventHandler = undefined
@@ -60,23 +61,32 @@ export class ProcessEthBarcode implements Plugin {
     }
 
     // execute challengeRequest preparation
-    await this._eventHandler.processMsg({ type: MessageType.beforeChallengeRequest }, callback)
+    const preparationStatus = await this._eventHandler.processMsg({ type: MessageType.beforeChallengeRequest }, callback)
 
-    // Call the endpoint to get the Challenge Request
-    const challengeRequestJson = await this._httpService.getRequest(message.properties.url)
+    // TODO: EventHandler processMsg has to return Promise of string
+    // @ts-ignore
+    if (preparationStatus === MessageStatus.Success) {
+      // Call the endpoint to get the Challenge Request
+      const challengeRequestJson = await this._httpService.getRequest(message.properties.url)
 
-    // preprocess challengeRequest response
-    await this._eventHandler.processMsg({ type: MessageType.afterChallengeRequest, msg: challengeRequestJson }, callback)
+      // preprocess challengeRequest response
+      const preprocessStatus = await this._eventHandler.processMsg({ type: MessageType.afterChallengeRequest, msg: challengeRequestJson }, callback)
 
-    const ulaMessage = {
-      type: MessageType.processChallengeRequest,
-      msg: challengeRequestJson
+      // @ts-ignore
+      if (preprocessStatus === MessageStatus.Success) {
+        const ulaMessage = {
+          type: MessageType.processChallengeRequest,
+          msg: challengeRequestJson
+        }
+
+        // Send the Challenge Request to the next plugin
+        await this._eventHandler.processMsg(ulaMessage, callback)
+
+        return 'completed'
+      }
+      return 'error'
     }
-
-    // Send the Challenge Request to the next plugin
-    await this._eventHandler.processMsg(ulaMessage, callback)
-
-    return 'completed'
+    return 'error'
   }
 }
 

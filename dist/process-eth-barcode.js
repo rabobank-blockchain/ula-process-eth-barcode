@@ -25,6 +25,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const message_type_1 = require("./model/message-type");
+const ula_msg_status_1 = require("./model/ula-msg-status");
 class ProcessEthBarcode {
     constructor(_httpService) {
         this._httpService = _httpService;
@@ -63,18 +64,27 @@ class ProcessEthBarcode {
                 throw new Error('Plugin not initialized. Did you forget to call initialize() ?');
             }
             // execute challengeRequest preparation
-            yield this._eventHandler.processMsg({ type: message_type_1.MessageType.beforeChallengeRequest }, callback);
-            // Call the endpoint to get the Challenge Request
-            const challengeRequestJson = yield this._httpService.getRequest(message.properties.url);
-            // preprocess challengeRequest response
-            yield this._eventHandler.processMsg({ type: message_type_1.MessageType.afterChallengeRequest, msg: challengeRequestJson }, callback);
-            const ulaMessage = {
-                type: message_type_1.MessageType.processChallengeRequest,
-                msg: challengeRequestJson
-            };
-            // Send the Challenge Request to the next plugin
-            yield this._eventHandler.processMsg(ulaMessage, callback);
-            return 'completed';
+            const preparationStatus = yield this._eventHandler.processMsg({ type: message_type_1.MessageType.beforeChallengeRequest }, callback);
+            // TODO: EventHandler processMsg has to return Promise of string
+            // @ts-ignore
+            if (preparationStatus === ula_msg_status_1.MessageStatus.Success) {
+                // Call the endpoint to get the Challenge Request
+                const challengeRequestJson = yield this._httpService.getRequest(message.properties.url);
+                // preprocess challengeRequest response
+                const preprocessStatus = yield this._eventHandler.processMsg({ type: message_type_1.MessageType.afterChallengeRequest, msg: challengeRequestJson }, callback);
+                // @ts-ignore
+                if (preprocessStatus === ula_msg_status_1.MessageStatus.Success) {
+                    const ulaMessage = {
+                        type: message_type_1.MessageType.processChallengeRequest,
+                        msg: challengeRequestJson
+                    };
+                    // Send the Challenge Request to the next plugin
+                    yield this._eventHandler.processMsg(ulaMessage, callback);
+                    return 'completed';
+                }
+                return 'error';
+            }
+            return 'error';
         });
     }
 }
