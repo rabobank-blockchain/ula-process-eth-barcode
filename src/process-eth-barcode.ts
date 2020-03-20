@@ -66,7 +66,7 @@ export class ProcessEthBarcode implements Plugin {
     console.log(preparationStatus)
     // TODO: EventHandler processMsg has to return Promise of string
     // @ts-ignore
-    if (preparationStatus === MessageStatus.Success) {
+    if (preparationStatus === MessageStatus.Success || preparationStatus === MessageStatus.Ignored) {
       // Call the endpoint to get the Challenge Request
       const challengeRequestJson = await this._httpService.getRequest(message.properties.url)
 
@@ -76,7 +76,7 @@ export class ProcessEthBarcode implements Plugin {
       console.log('preprocessStatus')
       console.log(preprocessStatus)
       // @ts-ignore
-      if (preprocessStatus === MessageStatus.Success) {
+      if (preprocessStatus === MessageStatus.Success || preparationStatus === MessageStatus.Ignored) {
         const ulaMessage = {
           type: MessageType.processChallengeRequest,
           msg: challengeRequestJson

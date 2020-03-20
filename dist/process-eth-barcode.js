@@ -69,7 +69,7 @@ class ProcessEthBarcode {
             console.log(preparationStatus);
             // TODO: EventHandler processMsg has to return Promise of string
             // @ts-ignore
-            if (preparationStatus === ula_msg_status_1.MessageStatus.Success) {
+            if (preparationStatus === ula_msg_status_1.MessageStatus.Success || preparationStatus === ula_msg_status_1.MessageStatus.Ignored) {
                 // Call the endpoint to get the Challenge Request
                 const challengeRequestJson = yield this._httpService.getRequest(message.properties.url);
                 // preprocess challengeRequest response
@@ -77,7 +77,7 @@ class ProcessEthBarcode {
                 console.log('preprocessStatus');
                 console.log(preprocessStatus);
                 // @ts-ignore
-                if (preprocessStatus === ula_msg_status_1.MessageStatus.Success) {
+                if (preprocessStatus === ula_msg_status_1.MessageStatus.Success || preparationStatus === ula_msg_status_1.MessageStatus.Ignored) {
                     const ulaMessage = {
                         type: message_type_1.MessageType.processChallengeRequest,
                         msg: challengeRequestJson

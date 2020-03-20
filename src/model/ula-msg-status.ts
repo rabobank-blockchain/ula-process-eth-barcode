@@ -1,4 +1,5 @@
 export enum MessageStatus {
     Success = 'success',
-    Error = 'error'
+    Error = 'error',
+    Ignored = 'ignored'
 }
