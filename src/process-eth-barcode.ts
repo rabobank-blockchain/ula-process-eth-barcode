@@ -62,7 +62,8 @@ export class ProcessEthBarcode implements Plugin {
 
     // execute challengeRequest preparation
     const preparationStatus = await this._eventHandler.processMsg({ type: MessageType.beforeChallengeRequest }, callback)
-
+    console.log('preparationStatus')
+    console.log(preparationStatus)
     // TODO: EventHandler processMsg has to return Promise of string
     // @ts-ignore
     if (preparationStatus === MessageStatus.Success) {
@@ -72,6 +73,8 @@ export class ProcessEthBarcode implements Plugin {
       // preprocess challengeRequest response
       const preprocessStatus = await this._eventHandler.processMsg({ type: MessageType.afterChallengeRequest, msg: challengeRequestJson }, callback)
 
+      console.log('preprocessStatus')
+      console.log(preprocessStatus)
       // @ts-ignore
       if (preprocessStatus === MessageStatus.Success) {
         const ulaMessage = {
