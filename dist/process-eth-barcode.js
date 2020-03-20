@@ -67,7 +67,7 @@ class ProcessEthBarcode {
             // Call the endpoint to get the Challenge Request
             const challengeRequestJson = yield this._httpService.getRequest(message.properties.url);
             // preprocess challengeRequest response
-            yield this._eventHandler.processMsg({ type: message_type_1.MessageType.afterChallengeRequest }, callback);
+            yield this._eventHandler.processMsg({ type: message_type_1.MessageType.afterChallengeRequest, msg: challengeRequestJson }, callback);
             const ulaMessage = {
                 type: message_type_1.MessageType.processChallengeRequest,
                 msg: challengeRequestJson
