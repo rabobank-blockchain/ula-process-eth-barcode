@@ -68,11 +68,11 @@ export class ProcessEthBarcode implements Plugin {
 
     // preprocess challengeRequest response
     console.log('payload before');
-    console.log(challengeRequestJson);
+    console.log(JSON.stringify(challengeRequestJson))
     const afterChallengeRequestStatuses = await this._eventHandler.processMsg({ type: MessageType.afterChallengeRequest, msg: challengeRequestJson }, callback)
 
     console.log('payload after')
-    console.log(challengeRequestJson)
+    console.log(JSON.stringify(challengeRequestJson))
     const ulaMessage = {
       type: MessageType.processChallengeRequest,
       msg: challengeRequestJson
