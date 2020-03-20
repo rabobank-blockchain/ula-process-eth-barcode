@@ -61,35 +61,34 @@ export class ProcessEthBarcode implements Plugin {
     }
 
     // execute challengeRequest preparation
-    const preparationStatus = await this._eventHandler.processMsg({ type: MessageType.beforeChallengeRequest }, callback)
-    console.log('preparationStatus')
-    console.log(preparationStatus)
+    const beforeChallengeRequestStatuses = await this._eventHandler.processMsg({ type: MessageType.beforeChallengeRequest }, callback)
+    console.log('beforeChallengeRequestStatuses')
+    console.log(beforeChallengeRequestStatuses)
     // TODO: EventHandler processMsg has to return Promise of string
     // @ts-ignore
-    if (preparationStatus === MessageStatus.Success || preparationStatus === MessageStatus.Ignored) {
-      // Call the endpoint to get the Challenge Request
-      const challengeRequestJson = await this._httpService.getRequest(message.properties.url)
-
-      // preprocess challengeRequest response
-      const preprocessStatus = await this._eventHandler.processMsg({ type: MessageType.afterChallengeRequest, msg: challengeRequestJson }, callback)
-
-      console.log('preprocessStatus')
-      console.log(preprocessStatus)
-      // @ts-ignore
-      if (preprocessStatus === MessageStatus.Success || preparationStatus === MessageStatus.Ignored) {
-        const ulaMessage = {
-          type: MessageType.processChallengeRequest,
-          msg: challengeRequestJson
-        }
-
-        // Send the Challenge Request to the next plugin
-        await this._eventHandler.processMsg(ulaMessage, callback)
-
-        return 'completed'
-      }
-      return 'error'
+    if (beforeChallengeRequestStatuses.contains(MessageStatus.Error)) {
+      return MessageStatus.Error
     }
-    return 'error'
+    // Call the endpoint to get the Challenge Request
+    const challengeRequestJson = await this._httpService.getRequest(message.properties.url)
+
+    // preprocess challengeRequest response
+    const preprocessStatuses = await this._eventHandler.processMsg({ type: MessageType.afterChallengeRequest, msg: challengeRequestJson }, callback)
+
+    // @ts-ignore
+    if (preprocessStatuses.contains(MessageStatus.Error)) {
+      return MessageStatus.Error
+    }
+
+    const ulaMessage = {
+      type: MessageType.processChallengeRequest,
+      msg: challengeRequestJson
+    }
+
+    // Send the Challenge Request to the next plugin
+    await this._eventHandler.processMsg(ulaMessage, callback)
+
+    return 'completed'
   }
 }
 

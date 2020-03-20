@@ -64,31 +64,29 @@ class ProcessEthBarcode {
                 throw new Error('Plugin not initialized. Did you forget to call initialize() ?');
             }
             // execute challengeRequest preparation
-            const preparationStatus = yield this._eventHandler.processMsg({ type: message_type_1.MessageType.beforeChallengeRequest }, callback);
-            console.log('preparationStatus');
-            console.log(preparationStatus);
+            const beforeChallengeRequestStatuses = yield this._eventHandler.processMsg({ type: message_type_1.MessageType.beforeChallengeRequest }, callback);
+            console.log('beforeChallengeRequestStatuses');
+            console.log(beforeChallengeRequestStatuses);
             // TODO: EventHandler processMsg has to return Promise of string
             // @ts-ignore
-            if (preparationStatus === ula_msg_status_1.MessageStatus.Success || preparationStatus === ula_msg_status_1.MessageStatus.Ignored) {
-                // Call the endpoint to get the Challenge Request
-                const challengeRequestJson = yield this._httpService.getRequest(message.properties.url);
-                // preprocess challengeRequest response
-                const preprocessStatus = yield this._eventHandler.processMsg({ type: message_type_1.MessageType.afterChallengeRequest, msg: challengeRequestJson }, callback);
-                console.log('preprocessStatus');
-                console.log(preprocessStatus);
-                // @ts-ignore
-                if (preprocessStatus === ula_msg_status_1.MessageStatus.Success || preparationStatus === ula_msg_status_1.MessageStatus.Ignored) {
-                    const ulaMessage = {
-                        type: message_type_1.MessageType.processChallengeRequest,
-                        msg: challengeRequestJson
-                    };
-                    // Send the Challenge Request to the next plugin
-                    yield this._eventHandler.processMsg(ulaMessage, callback);
-                    return 'completed';
-                }
-                return 'error';
+            if (beforeChallengeRequestStatuses.contains(ula_msg_status_1.MessageStatus.Error)) {
+                return ula_msg_status_1.MessageStatus.Error;
             }
-            return 'error';
+            // Call the endpoint to get the Challenge Request
+            const challengeRequestJson = yield this._httpService.getRequest(message.properties.url);
+            // preprocess challengeRequest response
+            const preprocessStatuses = yield this._eventHandler.processMsg({ type: message_type_1.MessageType.afterChallengeRequest, msg: challengeRequestJson }, callback);
+            // @ts-ignore
+            if (preprocessStatuses.contains(ula_msg_status_1.MessageStatus.Error)) {
+                return ula_msg_status_1.MessageStatus.Error;
+            }
+            const ulaMessage = {
+                type: message_type_1.MessageType.processChallengeRequest,
+                msg: challengeRequestJson
+            };
+            // Send the Challenge Request to the next plugin
+            yield this._eventHandler.processMsg(ulaMessage, callback);
+            return 'completed';
         });
     }
 }
