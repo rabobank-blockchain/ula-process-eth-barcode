@@ -24,6 +24,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const message_type_1 = require("./model/message-type");
 class ProcessEthBarcode {
     constructor(_httpService) {
         this._httpService = _httpService;
@@ -61,10 +62,14 @@ class ProcessEthBarcode {
             if (!this._eventHandler) {
                 throw new Error('Plugin not initialized. Did you forget to call initialize() ?');
             }
+            // execute challengeRequest preparation
+            yield this._eventHandler.processMsg({ type: message_type_1.MessageType.beforeChallengeRequest }, callback);
             // Call the endpoint to get the Challenge Request
             const challengeRequestJson = yield this._httpService.getRequest(message.properties.url);
+            // preprocess challengeRequest response
+            yield this._eventHandler.processMsg({ type: message_type_1.MessageType.afterChallengeRequest }, callback);
             const ulaMessage = {
-                type: 'process-challengerequest',
+                type: message_type_1.MessageType.processChallengeRequest,
                 msg: challengeRequestJson
             };
             // Send the Challenge Request to the next plugin
