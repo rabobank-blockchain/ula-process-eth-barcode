@@ -62,24 +62,12 @@ export class ProcessEthBarcode implements Plugin {
 
     // execute challengeRequest preparation
     const beforeChallengeRequestStatuses = await this._eventHandler.processMsg({ type: MessageType.beforeChallengeRequest }, callback)
-    console.log('beforeChallengeRequestStatuses')
-    console.log(beforeChallengeRequestStatuses)
-    // TODO: EventHandler processMsg has to return Promise of string
-    // @ts-ignore
-    if (beforeChallengeRequestStatuses.includes(MessageStatus.Error)) {
-      return MessageStatus.Error
-    }
+
     // Call the endpoint to get the Challenge Request
     const challengeRequestJson = await this._httpService.getRequest(message.properties.url)
 
     // preprocess challengeRequest response
     const afterChallengeRequestStatuses = await this._eventHandler.processMsg({ type: MessageType.afterChallengeRequest, msg: challengeRequestJson }, callback)
-    console.log('afterChallengeRequestStatuses')
-    console.log(afterChallengeRequestStatuses)
-    // @ts-ignore
-    if (afterChallengeRequestStatuses.includes(MessageStatus.Error)) {
-      return MessageStatus.Error
-    }
 
     const ulaMessage = {
       type: MessageType.processChallengeRequest,

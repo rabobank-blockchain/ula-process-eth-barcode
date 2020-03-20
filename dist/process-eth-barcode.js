@@ -25,7 +25,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const message_type_1 = require("./model/message-type");
-const ula_msg_status_1 = require("./model/ula-msg-status");
 class ProcessEthBarcode {
     constructor(_httpService) {
         this._httpService = _httpService;
@@ -65,23 +64,10 @@ class ProcessEthBarcode {
             }
             // execute challengeRequest preparation
             const beforeChallengeRequestStatuses = yield this._eventHandler.processMsg({ type: message_type_1.MessageType.beforeChallengeRequest }, callback);
-            console.log('beforeChallengeRequestStatuses');
-            console.log(beforeChallengeRequestStatuses);
-            // TODO: EventHandler processMsg has to return Promise of string
-            // @ts-ignore
-            if (beforeChallengeRequestStatuses.includes(ula_msg_status_1.MessageStatus.Error)) {
-                return ula_msg_status_1.MessageStatus.Error;
-            }
             // Call the endpoint to get the Challenge Request
             const challengeRequestJson = yield this._httpService.getRequest(message.properties.url);
             // preprocess challengeRequest response
             const afterChallengeRequestStatuses = yield this._eventHandler.processMsg({ type: message_type_1.MessageType.afterChallengeRequest, msg: challengeRequestJson }, callback);
-            console.log('afterChallengeRequestStatuses');
-            console.log(afterChallengeRequestStatuses);
-            // @ts-ignore
-            if (afterChallengeRequestStatuses.includes(ula_msg_status_1.MessageStatus.Error)) {
-                return ula_msg_status_1.MessageStatus.Error;
-            }
             const ulaMessage = {
                 type: message_type_1.MessageType.processChallengeRequest,
                 msg: challengeRequestJson
