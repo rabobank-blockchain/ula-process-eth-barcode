@@ -16,7 +16,6 @@
 
 import { HttpService, EventHandler, Message, Plugin } from 'universal-ledger-agent'
 import { MessageType } from './model/message-type'
-import {MessageStatus} from "./model/ula-msg-status";
 
 export class ProcessEthBarcode implements Plugin {
   private _eventHandler?: EventHandler = undefined
