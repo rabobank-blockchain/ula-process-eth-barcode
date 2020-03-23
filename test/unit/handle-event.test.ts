@@ -57,7 +57,7 @@ describe('process barcode handle event process', function () {
     return handleEvent.should.eventually.be.rejectedWith('Plugin not initialized. Did you forget to call initialize() ?')
   })
 
-  it('should call the endpoint properly, publish a new ulaMessage and complete', () => {
+  it('should call the endpoint properly, publish a new ulaMessage and complete', async () => {
     const httpServiceGetRequestStub = sinon.stub(httpService, 'getRequest').resolves(httpServiceResponse)
     const eventHandler = new EventHandler([])
     const eventHandlerStub = sinon.stub(eventHandler, 'processMsg')
@@ -68,11 +68,13 @@ describe('process barcode handle event process', function () {
     sut.initialize(eventHandler)
 
     const handleEvent = sut.handleEvent(ulaMessage, undefined)
-
-    httpServiceGetRequestStub.should.have.been.calledWithExactly(ulaMessageUrl)
     return handleEvent.should.eventually.equal('completed').then(() => {
       // Check the eventHandler call after the async method finished
-      return eventHandlerStub.lastCall.args[0].should.have.been.deep.equal(expectedUlaMessage)
+      eventHandlerStub.getCall(0).args[0].type.should.equal('before-challengerequest')
+      eventHandlerStub.getCall(1).args[0].type.should.equal('after-challengerequest')
+      eventHandlerStub.getCall(2).args[0].type.should.equal('process-challengerequest')
+      httpServiceGetRequestStub.should.have.been.calledWithExactly(ulaMessageUrl)
+      eventHandlerStub.lastCall.args[0].should.have.been.deep.equal(expectedUlaMessage)
     })
   })
 })
