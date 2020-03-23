@@ -15,6 +15,8 @@
  */
 
 import { HttpService, EventHandler, Message, Plugin } from 'universal-ledger-agent'
+import { MessageType } from './model/message-type'
+import {MessageStatus} from "./model/ula-msg-status";
 
 export class ProcessEthBarcode implements Plugin {
   private _eventHandler?: EventHandler = undefined
@@ -58,11 +60,17 @@ export class ProcessEthBarcode implements Plugin {
       throw new Error('Plugin not initialized. Did you forget to call initialize() ?')
     }
 
+    // execute challengeRequest preparation
+    await this._eventHandler.processMsg({ type: MessageType.beforeChallengeRequest }, callback)
+
     // Call the endpoint to get the Challenge Request
     const challengeRequestJson = await this._httpService.getRequest(message.properties.url)
 
+    // preprocess challengeRequest response
+    await this._eventHandler.processMsg({ type: MessageType.afterChallengeRequest, msg: challengeRequestJson }, callback)
+
     const ulaMessage = {
-      type: 'process-challengerequest',
+      type: MessageType.processChallengeRequest,
       msg: challengeRequestJson
     }
 
