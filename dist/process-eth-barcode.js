@@ -15,15 +15,15 @@
  * limitations under the License.
  */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const message_type_1 = require("./model/message-type");
 class ProcessEthBarcode {
     constructor(_httpService) {
         this._httpService = _httpService;
@@ -61,10 +61,14 @@ class ProcessEthBarcode {
             if (!this._eventHandler) {
                 throw new Error('Plugin not initialized. Did you forget to call initialize() ?');
             }
+            // execute challengeRequest preparation
+            yield this._eventHandler.processMsg({ type: message_type_1.MessageType.beforeChallengeRequest }, callback);
             // Call the endpoint to get the Challenge Request
             const challengeRequestJson = yield this._httpService.getRequest(message.properties.url);
+            // preprocess challengeRequest response
+            yield this._eventHandler.processMsg({ type: message_type_1.MessageType.afterChallengeRequest, msg: challengeRequestJson }, callback);
             const ulaMessage = {
-                type: 'process-challengerequest',
+                type: message_type_1.MessageType.processChallengeRequest,
                 msg: challengeRequestJson
             };
             // Send the Challenge Request to the next plugin

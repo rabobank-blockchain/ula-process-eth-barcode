@@ -1,3 +1,10 @@
+# 0.2.2 / 23-03-2020
+
+**Enhancements:**
+- Additional hook messages (`before-challengerequest` and `after-challengerequest`) are sent to provide addtional checks before and after challenge request is executed ([#6](https://github.com/rabobank-blockchain/ula-process-eth-barcode/pull/6))
+- Updated all dependencies
+- Downgraded TypeScript to v3.4.5 to provide proper `d.ts` files (v3.7 breaks this)
+
 # 0.2.1 / 09-01-2020
 
 **Enhancements:**
